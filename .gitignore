@@ -98,6 +98,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+# Don't ignore the models in Resources/
+!Resources/*.obj
+
 # Chutzpah Test files
 _Chutzpah*
 

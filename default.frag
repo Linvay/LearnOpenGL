@@ -64,7 +64,7 @@ vec4 directionalLight()
 	float ambient = 0.2;
 
 	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(vec3(-0.2, -1.0, -0.3));
+	vec3 lightDirection = normalize(vec3(1.0, 1.0, 0.0));
 	float diffuse = max(dot(normal, lightDirection), 0.0);
 
 	float specularStrength = 0.5;
@@ -76,7 +76,7 @@ vec4 directionalLight()
 	
 
 	return (texture(textureDiffuse0, texCoord) * (ambient + diffuse) 
-		+ texture(textureSpecular0, texCoord) * specular) * lightColor;
+		+ texture(textureSpecular0, texCoord).r * specular) * lightColor;
 }
 
 vec4 spotLight()
@@ -123,5 +123,5 @@ vec4 spotLight()
 
 void main()
 {
-	FragColor = pointLight();
+	FragColor = directionalLight();
 }

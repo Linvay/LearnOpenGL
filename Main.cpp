@@ -171,11 +171,6 @@ int main()
 
 
 
-	// Load a model
-	Model testModel("Resources/deccer_cubes/SM_Deccer_Cubes_Textured.gltf");
-
-
-
 	// Load textures for object
 	std::string texturePath = "Resources/";
 	Texture textures[] =
@@ -183,6 +178,9 @@ int main()
 		Texture((texturePath + "planks.png").c_str(), DIFFUSE, 0),
 		Texture((texturePath + "planksSpec.png").c_str(), SPECULAR, 1)
 	};
+
+	// Load a model
+	Model testModel("Resources/backpack/backpack.obj");
 
 
 
@@ -252,7 +250,7 @@ int main()
 
 
 		floor.Draw(shaderProgram, camera);
-		light.Draw(lightShader, camera);
+		// light.Draw(lightShader, camera);
 
 
 		// testModel.Draw(shaderProgram, camera);
