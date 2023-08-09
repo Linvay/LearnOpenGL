@@ -21,57 +21,57 @@ public:
 	void Delete();
 
 	// Uniform variable setting function
-	void SetBool(const char* uniformVarName, bool value) const
+	void SetBool(std::string uniformVarName, bool value) const
 	{
-		glUniform1i(glGetUniformLocation(ID, uniformVarName), (int)value);
+		glUniform1i(glGetUniformLocation(ID, uniformVarName.c_str()), (int)value);
 	}
-	void SetInt(const char* uniformVarName, int value) const
+	void SetInt(std::string uniformVarName, int value) const
 	{
-		glUniform1i(glGetUniformLocation(ID, uniformVarName), value);
+		glUniform1i(glGetUniformLocation(ID, uniformVarName.c_str()), value);
 	}
-	void SetFloat(const char* uniformVarName, float value) const
+	void SetFloat(std::string uniformVarName, float value) const
 	{
-		glUniform1f(glGetUniformLocation(ID, uniformVarName), value);
-	}
-
-	void SetVec2(const char* uniformVarName, const glm::vec2& value) const
-	{
-		glUniform2fv(glGetUniformLocation(ID, uniformVarName), 1, &value[0]);
-	}
-	void SetVec2(const char* uniformVarName, float x, float y) const
-	{
-		glUniform2f(glGetUniformLocation(ID, uniformVarName), x, y);
+		glUniform1f(glGetUniformLocation(ID, uniformVarName.c_str()), value);
 	}
 
-	void SetVec3(const char* uniformVarName, const glm::vec3& value) const
+	void SetVec2(std::string uniformVarName, const glm::vec2& value) const
 	{
-		glUniform3fv(glGetUniformLocation(ID, uniformVarName), 1, &value[0]);
+		glUniform2fv(glGetUniformLocation(ID, uniformVarName.c_str()), 1, &value[0]);
 	}
-	void SetVec3(const char* uniformVarName, float x, float y, float z) const
+	void SetVec2(std::string uniformVarName, float x, float y) const
 	{
-		glUniform3f(glGetUniformLocation(ID, uniformVarName), x, y, z);
-	}
-
-	void SetVec4(const char* uniformVarName, const glm::vec4& value) const
-	{
-		glUniform4fv(glGetUniformLocation(ID, uniformVarName), 1, &value[0]);
-	}
-	void SetVec4(const char* uniformVarName, float x, float y, float z, float w) const
-	{
-		glUniform4f(glGetUniformLocation(ID, uniformVarName), x, y, z, w);
+		glUniform2f(glGetUniformLocation(ID, uniformVarName.c_str()), x, y);
 	}
 
-	void SetMat2(const char* uniformVarName, const glm::mat2& mat) const
+	void SetVec3(std::string uniformVarName, const glm::vec3& value) const
 	{
-		glUniformMatrix2fv(glGetUniformLocation(ID, uniformVarName), 1, GL_FALSE, &mat[0][0]);
+		glUniform3fv(glGetUniformLocation(ID, uniformVarName.c_str()), 1, &value[0]);
 	}
-	void SetMat3(const char* uniformVarName, const glm::mat3& mat) const
+	void SetVec3(std::string uniformVarName, float x, float y, float z) const
 	{
-		glUniformMatrix3fv(glGetUniformLocation(ID, uniformVarName), 1, GL_FALSE, &mat[0][0]);
+		glUniform3f(glGetUniformLocation(ID, uniformVarName.c_str()), x, y, z);
 	}
-	void SetMat4(const char* uniformVarName, const glm::mat4& mat) const
+
+	void SetVec4(std::string uniformVarName, const glm::vec4& value) const
 	{
-		glUniformMatrix4fv(glGetUniformLocation(ID, uniformVarName), 1, GL_FALSE, &mat[0][0]);
+		glUniform4fv(glGetUniformLocation(ID, uniformVarName.c_str()), 1, &value[0]);
+	}
+	void SetVec4(std::string uniformVarName, float x, float y, float z, float w) const
+	{
+		glUniform4f(glGetUniformLocation(ID, uniformVarName.c_str()), x, y, z, w);
+	}
+
+	void SetMat2(std::string uniformVarName, const glm::mat2& mat) const
+	{
+		glUniformMatrix2fv(glGetUniformLocation(ID, uniformVarName.c_str()), 1, GL_FALSE, &mat[0][0]);
+	}
+	void SetMat3(std::string uniformVarName, const glm::mat3& mat) const
+	{
+		glUniformMatrix3fv(glGetUniformLocation(ID, uniformVarName.c_str()), 1, GL_FALSE, &mat[0][0]);
+	}
+	void SetMat4(std::string uniformVarName, const glm::mat4& mat) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(ID, uniformVarName.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
 
 private:

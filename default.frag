@@ -74,8 +74,8 @@ void main()
 
 	vec3 result = CalcDirLight(dirLight, normal, viewDir);
 	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
-	for (int i = 0; i < MAX_SPOT_LIGHTS; i++)
-		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
+	//for (int i = 0; i < MAX_SPOT_LIGHTS; i++)
+		//result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
 		
 	FragColor = vec4(result, 1.0);
 }
@@ -87,7 +87,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	vec3 ambient = light.ambient * objectDiffuse;
 
 	vec3 lightDirection = normalize(-light.direction);
-	vec3 diffuse = max(dot(normal, lightDirection), 0.0) * objectDiffuse;
+	vec3 diffuse = light.diffuse * max(dot(normal, lightDirection), 0.0) * objectDiffuse;
 
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 	float specularAmount = pow(max(dot(viewDir, reflectionDirection), 0.0), shininess);
@@ -110,7 +110,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 	vec3 ambient = light.ambient * objectDiffuse;
 
-	vec3 diffuse = max(dot(normal, frag2Light), 0.0) * objectDiffuse;
+	vec3 diffuse = light.diffuse * max(dot(normal, frag2Light), 0.0) * objectDiffuse;
 
 	vec3 reflectionDirection = reflect(-frag2Light, normal);
 	float specularAmount = pow(max(dot(viewDir, reflectionDirection), 0.0), shininess);

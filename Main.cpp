@@ -14,6 +14,7 @@
 #include "EBO.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Light.h"
 #include "Mesh.h"
 #include "Model.h"
 
@@ -74,7 +75,7 @@ void APIENTRY glDebugOutput(GLenum source,
 	std::cout << std::endl;
 }
 
-// #define DEBUG_OUTPUT_ENABLED
+#define DEBUG_OUTPUT_ENABLED
 
 
 
@@ -180,7 +181,7 @@ int main()
 	};
 
 	// Load a model
-	Model testModel("Resources/backpack/backpack.obj");
+	//Model testModel("Resources/backpack/backpack.obj");
 
 
 
@@ -195,7 +196,8 @@ int main()
 	Shader lightShader("light.vert", "light.frag");
 	std::vector <Vertex> lightVert(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
 	std::vector <GLuint> lightIdx(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
-	Mesh light(lightVert, lightIdx);
+	Mesh light1(lightVert, lightIdx);
+	Mesh light2(lightVert, lightIdx);
 
 
 
@@ -204,8 +206,10 @@ int main()
 	glm::mat4 objectModel = glm::mat4(1.0f);
 	objectModel = glm::translate(objectModel, objectPosition);
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPosition = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
+	DirLight dirLight(shaderProgram, 0.2f, 0.4f, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
+	PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
+	
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPosition);
 
@@ -213,10 +217,9 @@ int main()
 
 	// Assign values to the uniform variables
 	shaderProgram.Activate();
-	shaderProgram.SetVec4("lightColor", lightColor);
-	shaderProgram.SetVec3("lightPosition", lightPosition);
 	shaderProgram.SetMat4("model", objectModel);
 	shaderProgram.SetMat3("normalMatrix", glm::mat3(glm::transpose(glm::inverse(objectModel))));
+	shaderProgram.SetFloat("shininess", 64.0f);
 
 	lightShader.Activate();
 	lightShader.SetMat4("model", lightModel);
@@ -250,7 +253,8 @@ int main()
 
 
 		floor.Draw(shaderProgram, camera);
-		// light.Draw(lightShader, camera);
+		light1.Draw(lightShader, camera);
+		light2.Draw(lightShader, camera);
 
 
 		// testModel.Draw(shaderProgram, camera);
