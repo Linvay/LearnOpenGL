@@ -75,7 +75,7 @@ void main()
 	vec3 viewDir = normalize(cameraPosition - FragPosition);
 
 	vec3 result = CalcDirLight(dirLight, normal, viewDir);
-	// result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
+	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
 	for (int i = 0; i < min(numSpotLights, MAX_SPOT_LIGHTS); i++)
 		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
 		

@@ -212,7 +212,7 @@ int main()
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
 	DirLight dirLight(shaderProgram, 0.2f, 0.4f, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
-	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
+	PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
 	SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
 	SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
 
