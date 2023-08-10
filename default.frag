@@ -58,6 +58,8 @@ uniform DirLight dirLight;
 uniform PointLight pointLight;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
+uniform int numSpotLights = 0;
+
 
 
 // Function prototypes
@@ -73,9 +75,9 @@ void main()
 	vec3 viewDir = normalize(cameraPosition - FragPosition);
 
 	vec3 result = CalcDirLight(dirLight, normal, viewDir);
-	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
-	//for (int i = 0; i < MAX_SPOT_LIGHTS; i++)
-		//result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
+	// result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
+	for (int i = 0; i < min(numSpotLights, MAX_SPOT_LIGHTS); i++)
+		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
 		
 	FragColor = vec4(result, 1.0);
 }

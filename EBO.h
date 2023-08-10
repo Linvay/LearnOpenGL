@@ -4,11 +4,11 @@
 
 #include <vector>
 
-class EBO
+class EntityBufferObject
 {
 public:
 	GLuint ID;
-	EBO(std::vector<GLuint>& indices);
+	EntityBufferObject(std::vector<GLuint>& indices);
 
 	void Bind();
 	void Unbind();

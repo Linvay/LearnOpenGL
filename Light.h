@@ -96,8 +96,8 @@ public:
 		float constant = 1.0f,
 		float linear = 0.09f,
 		float quadratic = 0.032f,
-		float cutOff = glm::cos(glm::radians(12.5f)),
-		float outerCutOff = glm::cos(glm::radians(15.0f))
+		float cutOff = glm::cos(glm::radians(22.5f)),
+		float outerCutOff = glm::cos(glm::radians(25.0f))
 	)
 	{
 		SpotLight::ambient = ambient;
@@ -119,18 +119,18 @@ public:
 		shader.SetVec3(getIndexedUniformName("spotLights", index, "diffuse"), glm::vec3(diffuse));
 		shader.SetVec3(getIndexedUniformName("spotLights", index, "specular"), glm::vec3(specular));
 		shader.SetFloat(getIndexedUniformName("spotLights", index, "constant"), constant);
-		shader.SetVec3(getIndexedUniformName("spotLights", index, "specular"), glm::vec3(specular));
-		shader.SetFloat(getIndexedUniformName("spotLights", index, "constant"), constant);
 		shader.SetFloat(getIndexedUniformName("spotLights", index, "linear"), linear);
 		shader.SetFloat(getIndexedUniformName("spotLights", index, "quadratic"), quadratic);
 		shader.SetFloat(getIndexedUniformName("spotLights", index, "cutOff"), cutOff);
 		shader.SetFloat(getIndexedUniformName("spotLights", index, "outerCutOff"), outerCutOff);
 
 		shader.SetVec3(getIndexedUniformName("spotLights", index, "position"), position);
-		shader.SetVec3(getIndexedUniformName("spotLights", index, "position"), position);
+		shader.SetVec3(getIndexedUniformName("spotLights", index, "direction"), direction);
+
+		shader.SetInt("numSpotLights", count);
 	}
-private:
 	static int count;
+private:
 	int index;
 
 	float ambient;
@@ -144,3 +144,5 @@ private:
 	glm::vec3 position;
 	glm::vec3 direction;
 };
+
+int SpotLight::count = 0;
