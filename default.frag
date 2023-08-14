@@ -52,6 +52,7 @@ struct SpotLight {
 
 
 
+#define MAX_POINT_LIGHTS 4
 #define MAX_SPOT_LIGHTS 4
 
 uniform DirLight dirLight;
@@ -75,9 +76,9 @@ void main()
 	vec3 viewDir = normalize(cameraPosition - FragPosition);
 
 	vec3 result = CalcDirLight(dirLight, normal, viewDir);
-	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
-	for (int i = 0; i < min(numSpotLights, MAX_SPOT_LIGHTS); i++)
-		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
+//	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
+//	for (int i = 0; i < min(numSpotLights, MAX_SPOT_LIGHTS); i++)
+//		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
 		
 	FragColor = vec4(result, 1.0);
 }
@@ -135,7 +136,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 	vec3 ambient = light.ambient * objectDiffuse;
 
-	vec3 diffuse = max(dot(normal, frag2Light), 0.0) * objectDiffuse;
+	vec3 diffuse = light.diffuse * max(dot(normal, frag2Light), 0.0) * objectDiffuse;
 
 	vec3 reflectionDirection = reflect(-frag2Light, normal);
 	float specularAmount = pow(max(dot(viewDir, reflectionDirection), 0.0), shininess);

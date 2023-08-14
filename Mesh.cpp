@@ -42,6 +42,9 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 
 	for (size_t i = 0; i < textures.size(); i++)
 	{
+		// SHOULD PROBABLY DEBUG TEXTURE.CPP FOR IT TO WORK WITH THE CURRENT MESH CLASS
+		glActiveTexture(GL_TEXTURE0 + i);
+
 		std::string num;
 		std::string name;
 		textureType type = textures[i].type;
@@ -58,12 +61,10 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 		}
 
 		textures[i].SetTextureUnit(shader, name.c_str(), i);
-		textures[i].Bind();
+		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
 	}
 
 	shader.SetVec3("cameraPosition", camera.Position);
-	shader.SetVec3("spotLightPosition", camera.Position);
-	shader.SetVec3("spotLightDirection", camera.Orientation);
 	camera.SetShaderMatrix(shader, "camera");
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

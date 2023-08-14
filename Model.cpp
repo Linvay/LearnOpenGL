@@ -7,10 +7,12 @@ Model::Model(const char* path)
 
 void Model::Draw(Shader& shader, Camera& camera)
 {
-	for (size_t i = 0; i < meshes.size(); i++)
+	/*for (size_t i = 0; i < meshes.size(); i++)
 	{
 		meshes[i].Draw(shader, camera);
-	}
+	}*/
+
+	meshes[1].Draw(shader, camera);
 }
 
 void Model::LoadModel(std::string path)
@@ -26,6 +28,15 @@ void Model::LoadModel(std::string path)
 
 	if (scene)
 		ProcessNode(scene->mRootNode, scene);
+	
+	std::cout << "Number of mesh: " << meshes.size() << std::endl;
+	std::cout << "Number of loaded textures: " << texturesLoaded.size() << std::endl;
+	for (size_t i = 0; i < meshes.size(); i++)
+	{
+		std::cout << "mesh " << i << std::endl;
+		std::cout << "Number of textures " << meshes[i].textures.size() << std::endl;
+		std::cout << "Number of vertices " << meshes[i].vertices.size()  << std::endl;
+	}
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene)

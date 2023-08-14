@@ -75,7 +75,7 @@ void APIENTRY glDebugOutput(GLenum source,
 	std::cout << std::endl;
 }
 
-#define DEBUG_OUTPUT_ENABLED
+// #define DEBUG_OUTPUT_ENABLED
 
 
 
@@ -186,7 +186,7 @@ int main()
 	};
 
 	// Load a model
-	//Model testModel("Resources/backpack/backpack.obj");
+	Model testModel("Resources/deccer-cubes/SM_Deccer_Cubes_Textured.gltf");
 
 
 
@@ -211,10 +211,10 @@ int main()
 	objectModel = glm::translate(objectModel, objectPosition);
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
-	DirLight dirLight(shaderProgram, 0.2f, 0.4f, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
-	PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
-	SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
-	SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
+	DirLight dirLight(shaderProgram, 0.2f, 1.0f, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
+	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
+	// SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
+	// SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
 
 
 
@@ -252,19 +252,19 @@ int main()
 
 
 
-		floor.Draw(shaderProgram, camera);
+		// floor.Draw(shaderProgram, camera);
 
-		for (int i = 0; i < 2; i++)
+		/*for (int i = 0; i < 2; i++)
 		{
 			glm::mat4 lightModel = glm::mat4(1.0f);
 			lightModel = glm::translate(lightModel, lightPositions[i]);
 			lightShader.Activate();
 			lightShader.SetMat4("model", lightModel);
 			light.Draw(lightShader, camera);
-		}
+		}*/
 
 
-		// testModel.Draw(shaderProgram, camera);
+		testModel.Draw(shaderProgram, camera);
 
 
 
