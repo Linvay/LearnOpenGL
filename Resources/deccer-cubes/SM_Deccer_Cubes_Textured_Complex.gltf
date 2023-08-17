@@ -737,27 +737,32 @@
         {
             "bufferView" : 4,
             "mimeType" : "image/png",
-            "name" : "T_Blue_D"
+            "name" : "T_Blue_D",
+            "uri" : "T_Blue_D.png"
         },
         {
             "bufferView" : 8,
             "mimeType" : "image/png",
-            "name" : "T_Orange_D"
+            "name" : "T_Orange_D",
+            "uri" : "T_Orange_D.png"
         },
         {
             "bufferView" : 12,
             "mimeType" : "image/png",
-            "name" : "T_Purple_D"
+            "name" : "T_Purple_D",
+            "uri" : "T_Purple_D.png"
         },
         {
             "bufferView" : 16,
             "mimeType" : "image/png",
-            "name" : "T_Red_D"
+            "name" : "T_Red_D",
+            "uri" : "T_Red_D.png"
         },
         {
             "bufferView" : 50,
             "mimeType" : "image/png",
-            "name" : "T_LightGreen_D"
+            "name" : "T_LightGreen_D",
+            "uri" : "T_LightGreen_D.png"
         }
     ],
     "accessors" : [

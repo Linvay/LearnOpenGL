@@ -7,12 +7,19 @@ Model::Model(const char* path)
 
 void Model::Draw(Shader& shader, Camera& camera)
 {
-	/*for (size_t i = 0; i < meshes.size(); i++)
+	for (size_t i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].Draw(shader, camera);
-	}*/
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, translation);
+		trans = glm::rotate(trans, rotationRadians, rotationAxis);
+		trans = glm::scale(trans, scale);
 
-	meshes[1].Draw(shader, camera);
+		glm::mat4 objectModelMatrix = matrices[i] * trans;
+		// Set the normal matrix in the shader to calculate the proper normal direction
+		shader.SetMat3("normalMatrix", glm::mat3(glm::transpose(glm::inverse(objectModelMatrix))));
+
+		meshes[i].Draw(shader, camera, objectModelMatrix);
+	}
 }
 
 void Model::LoadModel(std::string path)
@@ -27,30 +34,36 @@ void Model::LoadModel(std::string path)
 	directory = path.substr(0, path.find_last_of('/'));
 
 	if (scene)
-		ProcessNode(scene->mRootNode, scene);
+		ProcessNode(scene->mRootNode, scene, glm::mat4(1.0f));
 	
 	std::cout << "Number of mesh: " << meshes.size() << std::endl;
 	std::cout << "Number of loaded textures: " << texturesLoaded.size() << std::endl;
-	for (size_t i = 0; i < meshes.size(); i++)
-	{
-		std::cout << "mesh " << i << std::endl;
-		std::cout << "Number of textures " << meshes[i].textures.size() << std::endl;
-		std::cout << "Number of vertices " << meshes[i].vertices.size()  << std::endl;
-	}
 }
 
-void Model::ProcessNode(aiNode* node, const aiScene* scene)
+void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 matrix)
 {
+	// Store the transformation of the node
+	aiMatrix4x4 mat = node->mTransformation;
+	glm::mat4 matParent = glm::mat4(
+		mat[0][0], mat[1][0], mat[2][0], mat[3][0],
+		mat[0][1], mat[1][1], mat[2][1], mat[3][1],
+		mat[0][2], mat[1][2], mat[2][2], mat[3][2],
+		mat[0][3], mat[1][3], mat[2][3], mat[3][3]
+	);
+	glm::mat4 matNode = matrix * matParent;
+
 	// Process all the node's meshes
 	for (size_t i = 0; i < node->mNumMeshes; i++)
 	{
+		// Store the mesh
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		meshes.push_back(ProcessMesh(mesh, scene));
+		matrices.push_back(matNode);
 	}
 	// Then do the same for each of its childern
 	for (size_t i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(node->mChildren[i], scene);
+		ProcessNode(node->mChildren[i], scene, matNode);
 	}
 }
 
@@ -59,6 +72,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
+
+	std::cout << mesh->mName.C_Str() << std::endl;
 
 	for (size_t i = 0; i < mesh->mNumVertices; i++)
 	{

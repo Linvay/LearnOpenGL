@@ -32,6 +32,7 @@ public:
 	Camera(int width, int height, glm::vec3 position);
 
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
+	void UpdateAspectRatio(int width, int height);
 	void SetShaderMatrix(Shader& shader, const char* uniform);
 	void ProcessKeyboardInputs(GLFWwindow* window);
 	void ProcessMouseInputs(GLFWwindow* window);

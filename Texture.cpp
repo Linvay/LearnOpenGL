@@ -4,7 +4,6 @@ Texture::Texture(const char* imagePath, textureType type, GLuint slot)
 {
 	Texture::type = type;
 	path = imagePath;
-	unit = slot;
 
 	int widthImage, heightImage, numColorChannel;
 	stbi_set_flip_vertically_on_load(true);
@@ -48,9 +47,9 @@ void Texture::SetTextureUnit(Shader& shader, const char* uniformVariableName, GL
 	glUniform1i(textureUniformID, unit);
 }
 
-void Texture::Bind()
+void Texture::Bind(GLuint slot)
 {
-	glActiveTexture(GL_TEXTURE0 + unit);
+	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, ID);
 }
 

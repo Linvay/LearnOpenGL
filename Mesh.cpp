@@ -32,7 +32,11 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 	EBO.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera)
+void Mesh::Draw(
+	Shader& shader,
+	Camera& camera,
+	glm::mat4 matrix
+)
 {
 	shader.Activate();
 	VAO.Bind();
@@ -42,9 +46,6 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 
 	for (size_t i = 0; i < textures.size(); i++)
 	{
-		// SHOULD PROBABLY DEBUG TEXTURE.CPP FOR IT TO WORK WITH THE CURRENT MESH CLASS
-		glActiveTexture(GL_TEXTURE0 + i);
-
 		std::string num;
 		std::string name;
 		textureType type = textures[i].type;
@@ -60,12 +61,15 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 			name = "textureSpecular" + num;
 		}
 
+		textures[i].Bind(i);
 		textures[i].SetTextureUnit(shader, name.c_str(), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
 	}
 
 	shader.SetVec3("cameraPosition", camera.Position);
 	camera.SetShaderMatrix(shader, "camera");
+
+	shader.SetMat4("model", matrix);
+
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }

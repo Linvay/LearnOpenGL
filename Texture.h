@@ -17,12 +17,11 @@ class Texture
 public:
 	GLuint ID;
 	textureType type;
-	GLuint unit;
 	std::string path;
 	Texture(const char* imagePath, textureType type, GLuint slot);
 
 	void SetTextureUnit(Shader& shader, const char* uniformVariableName, GLuint unit);
-	void Bind();
+	void Bind(GLuint slot);
 	void Unbind();
 	void Delete();
 };

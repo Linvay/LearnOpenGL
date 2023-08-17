@@ -23,10 +23,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // Renderer settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 800;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 800;
 const std::string TEXTURE_PATH = "Resources/";
 float cameraFOV = 45.0f;
+// Set up the camera
+Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 1.0f, 2.0f));
 
 // OpenGL debug output context
 void APIENTRY glDebugOutput(GLenum source,
@@ -211,7 +213,7 @@ int main()
 	objectModel = glm::translate(objectModel, objectPosition);
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
-	DirLight dirLight(shaderProgram, 0.2f, 1.0f, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
+	DirLight dirLight(shaderProgram, 0.2f, 1.0f, 0.5f, glm::vec3(-1.0f, -1.0f, -1.0f));
 	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
 	// SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
 	// SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
@@ -229,9 +231,6 @@ int main()
 	// Enable the depth buffer
 	glEnable(GL_DEPTH_TEST);
 
-	// Set up the camera
-	Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 1.0f, 2.0f));
-
 
 
 	// Render loop
@@ -248,7 +247,7 @@ int main()
 		camera.ProcessKeyboardInputs(window);
 		camera.ProcessMouseInputs(window);
 		// Setting up matrices for 3D perspective
-		camera.UpdateMatrix(cameraFOV, 0.1f, 100.0f);
+		camera.UpdateMatrix(cameraFOV, 0.01f, 1000.0f);
 
 
 
@@ -287,7 +286,9 @@ int main()
 // Resize viewport whenever the size of the window is changed
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+	std::cout << width << "x" << height << std::endl;
 	glViewport(0, 0, width, height);
+	camera.UpdateAspectRatio(width, height);
 }
 
 // Adjust FOV by scrolling
