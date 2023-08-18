@@ -19,11 +19,20 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{c4819038-62c4-40bc-b814-7ed8269ff0fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Third Party">
+      <UniqueIdentifier>{a5b671e3-68ca-455c-b530-b13c99f78f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Third Party\imgui">
+      <UniqueIdentifier>{0416e0bb-c326-46eb-999d-8a8ee72f01d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Third Party">
+      <UniqueIdentifier>{4f7b197c-a1d1-4e87-8c8f-acef15270506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Third Party\imgui">
+      <UniqueIdentifier>{b46fd495-5d54-4a45-90cc-90b58ec9884c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,9 +51,6 @@
     <ClCompile Include="VAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,6 +62,33 @@
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files\Third Party</Filter>
+    </ClCompile>
+    <ClCompile Include="stb.cpp">
+      <Filter>Source Files\Third Party</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\Third Party\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +127,36 @@
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imconfig.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\Third Party\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

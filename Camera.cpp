@@ -82,6 +82,9 @@ void Camera::ProcessKeyboardInputs(GLFWwindow* window)
 
 void Camera::ProcessMouseInputs(GLFWwindow* window)
 {
+	if (isHoverUI)
+		return;
+
 	// start controlling camera
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
 		&& glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)

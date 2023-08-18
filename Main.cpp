@@ -1,3 +1,7 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -179,6 +183,21 @@ int main()
 
 
 
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+
+
+
 	// Load textures for object
 	std::string texturePath = "Resources/";
 	Texture textures[] =
@@ -232,14 +251,23 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 
+	// Test variables
+	glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Clear viewport to a color
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		// Clear buffers to update the frame
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 
 
 
@@ -267,10 +295,46 @@ int main()
 
 
 
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+
+			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+			camera.isHoverUI = ImGui::IsItemHovered();
+			
+			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", glm::value_ptr(clearColor)); // Edit 3 floats representing a color
+
+			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+			ImGui::End();
+		}
+
+		// Render ImGui UIs
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+
 		// Check and call events and swap the frame buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+
+
+	// Cleanup ImGui
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 
 
