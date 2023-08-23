@@ -238,7 +238,7 @@ int main()
 	objectModel = glm::translate(objectModel, objectPosition);
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
-	DirLight dirLight(shaderProgram, 0.2f, 1.0f, 0.5f, glm::vec3(-1.0f, -1.0f, -1.0f));
+	DirLight dirLight(shaderProgram, 0.6f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
 	// SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
 	// SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
@@ -249,7 +249,7 @@ int main()
 	shaderProgram.Activate();
 	shaderProgram.SetMat4("model", objectModel);
 	shaderProgram.SetMat3("normalMatrix", glm::mat3(glm::transpose(glm::inverse(objectModel))));
-	shaderProgram.SetFloat("shininess", 64.0f);
+	shaderProgram.SetFloat("shininess", 4.0f);
 
 
 
