@@ -132,6 +132,8 @@ glm::vec3 lightPositions[] = {
 };
 
 
+// GUI rendering functions
+void showMainMenuBar();
 
 int main()
 {
@@ -238,7 +240,7 @@ int main()
 	objectModel = glm::translate(objectModel, objectPosition);
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
-	DirLight dirLight(shaderProgram, 0.6f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+	DirLight dirLight(shaderProgram, 0.6f, 1.0f, 0.8f, glm::vec3(0.0f, -0.5f, -1.0f));
 	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
 	// SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
 	// SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
@@ -259,6 +261,7 @@ int main()
 
 	// Test variables
 	glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	bool showDemoWindow;
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -282,7 +285,7 @@ int main()
 		if (!io.WantCaptureMouse)
 			camera.ProcessMouseInputs(window);
 		// Setting up matrices for 3D perspective
-		camera.UpdateMatrix(cameraFOV, 0.01f, 1000.0f);
+		camera.UpdateMatrix(cameraFOV, 0.1f, 200.0f);
 
 
 
@@ -304,24 +307,16 @@ int main()
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
 		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-			
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::Begin("Window");                 
 			ImGui::ColorEdit3("clear color", glm::value_ptr(clearColor)); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
+
+		ImGui::ShowDemoWindow(&showDemoWindow);
+		showMainMenuBar();
+
+
 
 		// Render ImGui UIs
 		ImGui::Render();
@@ -379,4 +374,19 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		cameraFOV = 1.0f;
 	if (cameraFOV > 45.0f)
 		cameraFOV = 45.0f;
+}
+
+
+
+void showMainMenuBar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open")) {}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 }
