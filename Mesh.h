@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "VAO.h"
-#include "EBO.h"
+#include "VertexArray.h"
+#include "EntityBuffer.h"
 #include "Camera.h"
 #include "Texture.h"
 
@@ -14,7 +14,7 @@ public:
 	std::vector <GLuint> indices;
 	std::vector <Texture> textures;
 
-	VAO VAO;
+	VertexArray VAO;
 
 	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures);
 	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);

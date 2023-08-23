@@ -7,8 +7,8 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::v
 	Mesh::textures = textures;
 
 	VAO.Bind();
-	VBO VBO(vertices);
-	EBO EBO(indices);
+	VertexBuffer VBO(vertices);
+	EntityBuffer EBO(indices);
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
 	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	VAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
@@ -23,8 +23,8 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 	Mesh::indices = indices;
 
 	VAO.Bind();
-	VBO VBO(vertices);
-	EBO EBO(indices);
+	VertexBuffer VBO(vertices);
+	EntityBuffer EBO(indices);
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
 	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	VAO.Unbind();

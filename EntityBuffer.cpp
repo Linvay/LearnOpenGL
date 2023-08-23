@@ -1,6 +1,6 @@
-#include "EBO.h"
+#include "EntityBuffer.h"
 
-EBO::EBO(std::vector<GLuint>& indices)
+EntityBuffer::EntityBuffer(std::vector<GLuint>& indices)
 {
 	ID = 0;
 	glGenBuffers(1, &ID);
@@ -8,17 +8,17 @@ EBO::EBO(std::vector<GLuint>& indices)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 }
 
-void EBO::Bind()
+void EntityBuffer::Bind()
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
 }
 
-void EBO::Unbind()
+void EntityBuffer::Unbind()
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void EBO::Delete()
+void EntityBuffer::Delete()
 {
 	glDeleteBuffers(1, &ID);
 }

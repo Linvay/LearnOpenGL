@@ -13,9 +13,6 @@
 #include <stb/stb_image.h>
 
 #include "Shader.h"
-#include "VAO.h"
-#include "VBO.h"
-#include "EBO.h"
 #include "Texture.h"
 #include "Camera.h"
 #include "Light.h"
@@ -188,9 +185,18 @@ int main()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
+
+	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -273,7 +279,8 @@ int main()
 
 		// Handel camera input
 		camera.ProcessKeyboardInputs(window);
-		camera.ProcessMouseInputs(window);
+		if (!io.WantCaptureMouse)
+			camera.ProcessMouseInputs(window);
 		// Setting up matrices for 3D perspective
 		camera.UpdateMatrix(cameraFOV, 0.01f, 1000.0f);
 
@@ -301,8 +308,6 @@ int main()
 			static int counter = 0;
 
 			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			camera.isHoverUI = ImGui::IsItemHovered();
 			
 			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 
@@ -321,6 +326,17 @@ int main()
 		// Render ImGui UIs
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		// Update and Render additional Platform Windows
+		// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+		//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 
 
 

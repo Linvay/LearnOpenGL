@@ -28,7 +28,6 @@ public:
 	float lastTime = 0.0f;
 
 	bool firstMouseMove = true;
-	bool isHoverUI = false;
 
 	Camera(int width, int height, glm::vec3 position);
 

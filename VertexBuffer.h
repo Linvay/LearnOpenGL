@@ -14,11 +14,11 @@ struct Vertex
 
 
 
-class VBO
+class VertexBuffer
 {
 public:
 	GLuint ID;
-	VBO(std::vector<Vertex>& vertices);
+	VertexBuffer(std::vector<Vertex>& vertices);
 
 	void Bind();
 	void Unbind();
