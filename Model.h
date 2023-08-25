@@ -9,21 +9,21 @@
 class Model
 {
 public:
-	Model(const char* path);
+	Model(const char* path, bool flipTexture = true);
 	void Draw(Shader& shader, Camera& camera);
 	void Translate(const glm::vec3& trans)
 	{
-		translation = trans;
+		glm::translate(transformation, trans);
 	}
 	void Rotate(float angle, const glm::vec3& axis)
 	{
-		rotationRadians = glm::radians(angle);
-		rotationAxis = axis;
+		glm::rotate(transformation, glm::radians(angle), axis);
 	}
 	void Scale(const glm::vec3& scale)
 	{
-		Model::scale = scale;
+		glm::scale(transformation, scale);
 	}
+
 private:
 	std::vector<Mesh> meshes;
 	std::string directory;
@@ -34,9 +34,15 @@ private:
 	glm::vec3 rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
 	std::vector<glm::mat4> matrices;
+	glm::mat4 transformation = glm::mat4(1.0f);
 
-	void LoadModel(std::string path);
+	glm::vec3 aabbMin = glm::vec3(0.0f);
+	glm::vec3 aabbMax = glm::vec3(0.0f);
+
+	void LoadModel(std::string path, bool flipTexture);
 	void ProcessNode(aiNode *node, const aiScene* scene, glm::mat4 matrix);
 	Mesh ProcessMesh(aiMesh *mesh, const aiScene* scene);
-	std::vector<Texture> LoadMaterialTextures(aiMaterial* material, aiTextureType aiTexType, textureType texType);
+	std::vector<Texture> LoadMaterialTextures(aiMaterial* material, aiTextureType aiTexType, textureType texType, const aiScene* scene);
 };
+
+glm::vec3 getGlmVec3FromAiVec3(aiVector3D& vec);

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+#include <iostream>
 #include <vector>
 
 struct Vertex
@@ -12,7 +13,7 @@ struct Vertex
 	glm::vec2 texureUV;
 };
 
-
+std::ostream& operator<<(std::ostream& os, const glm::vec3& vec);
 
 class VertexBuffer
 {

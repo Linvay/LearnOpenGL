@@ -10,7 +10,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <algorithm>
 #include <stb/stb_image.h>
+#include <nfd/nfd.h>
 
 #include "Shader.h"
 #include "Texture.h"
@@ -24,12 +26,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // Renderer settings
-unsigned int SCR_WIDTH = 800;
-unsigned int SCR_HEIGHT = 800;
+unsigned int SCR_WIDTH = 1600;
+unsigned int SCR_HEIGHT = 900;
 const std::string TEXTURE_PATH = "Resources/";
 float cameraFOV = 45.0f;
+float cameraNearPlane = 0.1f;
+float cameraFarPlane = 100.0f;
 // Set up the camera
-Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 1.0f, 2.0f));
+Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
 
 // OpenGL debug output context
 void APIENTRY glDebugOutput(GLenum source,
@@ -133,7 +137,7 @@ glm::vec3 lightPositions[] = {
 
 
 // GUI rendering functions
-void showMainMenuBar();
+void showMainMenuBar(Model& model, std::string& currentModelPath);
 
 int main()
 {
@@ -155,9 +159,9 @@ int main()
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
 	// Setup GLFW callback functions
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetScrollCallback(window, scroll_callback);
 
 	// Tell GLFW to capture our mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -215,7 +219,9 @@ int main()
 	};
 
 	// Load a model
-	Model testModel("Resources/deccer-cubes/SM_Deccer_Cubes_Textured.gltf");
+	bool flipTexture = true;
+	std::string currentModelPath = "Resources/deccer-cubes/SM_Deccer_Cubes_Textured.glb";
+	Model currentModel(currentModelPath.c_str(), flipTexture);
 
 
 
@@ -232,6 +238,12 @@ int main()
 	std::vector <GLuint> lightIdx(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
 	Mesh light(lightVert, lightIdx);
 
+	// Setting up depth shader for depth visualization
+	Shader depthShader("default.vert", "depth.frag");
+	depthShader.Activate();
+	//depthShader.SetFloat("near", cameraNearPlane);
+	//depthShader.SetFloat("far", cameraFarPlane);
+
 
 
 	// Initialize values of uniform variables in each shader
@@ -240,7 +252,7 @@ int main()
 	objectModel = glm::translate(objectModel, objectPosition);
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
-	DirLight dirLight(shaderProgram, 0.6f, 1.0f, 0.8f, glm::vec3(0.0f, -0.5f, -1.0f));
+	DirLight dirLight(shaderProgram, 0.6f, 1.0f, 0.8f, glm::vec3(0.0f, 0.0f, 1.0f));
 	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
 	// SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
 	// SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
@@ -259,9 +271,11 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 
-	// Test variables
-	glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	// GUI variables
+	Shader& currentShader = shaderProgram;
+	glm::vec4 clearColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	bool showDemoWindow;
+	bool lighting = true;
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -281,40 +295,71 @@ int main()
 
 
 		// Handel camera input
-		camera.ProcessKeyboardInputs(window);
-		if (!io.WantCaptureMouse)
-			camera.ProcessMouseInputs(window);
+		if (!io.WantCaptureMouse && !io.WantCaptureKeyboard)
+			camera.ProcessInputs(window);
 		// Setting up matrices for 3D perspective
-		camera.UpdateMatrix(cameraFOV, 0.1f, 200.0f);
+		camera.UpdateMatrix(cameraFOV, 0.1f, 1000.0f);
 
 
 
-		// floor.Draw(shaderProgram, camera);
-
-		/*for (int i = 0; i < 2; i++)
+		// **********************************************************
+		// * IMGUI SECTION											*
+		// **********************************************************
 		{
-			glm::mat4 lightModel = glm::mat4(1.0f);
-			lightModel = glm::translate(lightModel, lightPositions[i]);
-			lightShader.Activate();
-			lightShader.SetMat4("model", lightModel);
-			light.Draw(lightShader, camera);
-		}*/
+			ImGui::Begin("Options", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("Shader"))
+				{
+					if (ImGui::MenuItem("Default"))
+					{
+						currentShader = shaderProgram;
+					}
+					if (ImGui::MenuItem("Depth"))
+					{
+						currentShader = depthShader;
+					}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
 
 
-		testModel.Draw(shaderProgram, camera);
+			ImGui::SeparatorText("Model");
+
+			if (ImGui::Button("Flip Texture"))
+			{
+				flipTexture = !flipTexture;
+				currentModel = Model(currentModelPath.c_str(), flipTexture);
+			}
 
 
 
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-		{
-			ImGui::Begin("Window");                 
-			ImGui::ColorEdit3("clear color", glm::value_ptr(clearColor)); // Edit 3 floats representing a color
+			ImGui::SeparatorText("Environment");
+
+			ImGui::ColorEdit3("Background color", glm::value_ptr(clearColor));
+
+			if (ImGui::Checkbox("Lighting", &lighting))
+			{
+				shaderProgram.SetBool("lighting", lighting);
+			}
+
+			ImGui::SeparatorText("Performance");
+
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
 			ImGui::End();
 		}
 
 		ImGui::ShowDemoWindow(&showDemoWindow);
-		showMainMenuBar();
+		showMainMenuBar(currentModel, currentModelPath);
+		
+
+		// **********************************************************
+		// * SCENE DRAWING SECTION									*
+		// **********************************************************
+		currentModel.Draw(currentShader, camera);
 
 
 
@@ -378,13 +423,30 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 
 
-void showMainMenuBar()
+void showMainMenuBar(Model &model, std::string& currentModelPath)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Open")) {}
+			if (ImGui::MenuItem("Open")) 
+			{
+				nfdchar_t* outPath = NULL;
+				nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+
+				if (result == NFD_OKAY)
+				{
+					std::replace(outPath, outPath + strlen(outPath), '\\', '/');
+					currentModelPath = outPath;
+					model = Model(outPath);
+					free(outPath);
+				}
+				else if (result == NFD_CANCEL) {}
+				else
+				{
+					std::cout << "ERROR::" << NFD_GetError() << std::endl;
+				}
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();

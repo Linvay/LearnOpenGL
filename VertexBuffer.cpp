@@ -1,5 +1,11 @@
 #include "VertexBuffer.h"
 
+std::ostream& operator<<(std::ostream& os, const glm::vec3& vec)
+{
+	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+	return os;
+}
+
 VertexBuffer::VertexBuffer(std::vector<Vertex>& vertices)
 {
 	glGenBuffers(1, &ID);

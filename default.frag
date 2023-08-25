@@ -61,6 +61,8 @@ uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 uniform int numSpotLights = 0;
 
+uniform bool lighting = true;
+
 
 
 // Function prototypes
@@ -78,10 +80,18 @@ void main()
 	if (objectDiffuse == vec3(0.0f))
 		objectDiffuse = vec3(1.0f);
 
-	vec3 result = CalcDirLight(dirLight, normal, viewDir);
-//	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
-//	for (int i = 0; i < min(numSpotLights, MAX_SPOT_LIGHTS); i++)
-//		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
+	vec3 result;
+
+	if (lighting)
+	{
+		result = CalcDirLight(dirLight, normal, viewDir);
+		//	result += CalcPointLight(pointLight, normal, FragPosition, viewDir);
+		//	for (int i = 0; i < min(numSpotLights, MAX_SPOT_LIGHTS); i++)
+		//		result += CalcSpotLight(spotLights[i], normal, FragPosition, viewDir);
+	}
+	else
+		result = objectDiffuse;
+	
 		
 	FragColor = vec4(result, 1.0);
 }

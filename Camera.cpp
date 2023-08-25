@@ -33,8 +33,52 @@ void Camera::SetShaderMatrix(Shader& shader, const char* uniform)
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-void Camera::ProcessKeyboardInputs(GLFWwindow* window)
+void Camera::ProcessInputs(GLFWwindow* window)
 {
+	// start controlling camera
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
+		&& glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		firstMouseMove = true;
+	}
+
+	if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+	{
+		return;
+	}
+
+	// set camera to center so the view won't jump around whenever we start controlling the camera
+	if (firstMouseMove)
+	{
+		glfwSetCursorPos(window, (width / 2), (height / 2));
+		firstMouseMove = false;
+	}
+
+	double mouseX;
+	double mouseY;
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+
+	// compute the rotation around X/Y axis, using the distance of mouse postion between frames
+	float rotationX = sensitivity * (float)(mouseY - (height / 2)) / height;
+	float rotationY = sensitivity * (float)(mouseX - (width / 2)) / width;
+
+	// vertical rotation
+	glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotationX), glm::normalize(glm::cross(Orientation, Up)));
+
+	// cap the max vertical rotation for stability
+	if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+	{
+		Orientation = newOrientation;
+	}
+
+	// horizontal rotation
+	Orientation = glm::rotate(Orientation, glm::radians(-rotationY), Up);
+
+	glfwSetCursorPos(window, (width / 2), (height / 2));
+
+
+
 	// using the time gap between frames to determine the speed, so that the speed stays the same across different hardware
 	float currentTime = glfwGetTime();
 	deltaTime = currentTime - lastTime;
@@ -78,49 +122,4 @@ void Camera::ProcessKeyboardInputs(GLFWwindow* window)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
-}
-
-void Camera::ProcessMouseInputs(GLFWwindow* window)
-{
-	// start controlling camera
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
-		&& glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
-	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		firstMouseMove = true;
-	}
-
-	if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
-	{
-		return;
-	}
-
-	// set camera to center so the view won't jump around whenever we start controlling the camera
-	if (firstMouseMove)
-	{
-		glfwSetCursorPos(window, (width / 2), (height / 2));
-		firstMouseMove = false;
-	}
-
-	double mouseX;
-	double mouseY;
-	glfwGetCursorPos(window, &mouseX, &mouseY);
-
-	// compute the rotation around X/Y axis, using the distance of mouse postion between frames
-	float rotationX = sensitivity * (float)(mouseY - (height / 2)) / height;
-	float rotationY = sensitivity * (float)(mouseX - (width / 2)) / width;
-
-	// vertical rotation
-	glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotationX), glm::normalize(glm::cross(Orientation, Up)));
-
-	// cap the max vertical rotation for stability
-	if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
-	{
-		Orientation = newOrientation;
-	}
-
-	// horizontal rotation
-	Orientation = glm::rotate(Orientation, glm::radians(-rotationY), Up);
-
-	glfwSetCursorPos(window, (width / 2), (height / 2));
 }

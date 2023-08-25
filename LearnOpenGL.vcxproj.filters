@@ -105,6 +105,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include=".gitignore" />
+    <None Include="depth.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

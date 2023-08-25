@@ -1,20 +1,15 @@
 #include "Model.h"
 
-Model::Model(const char* path)
+Model::Model(const char* path, bool flipTexture)
 {
-	LoadModel(path);
+	LoadModel(path, flipTexture);
 }
 
 void Model::Draw(Shader& shader, Camera& camera)
 {
 	for (size_t i = 0; i < meshes.size(); i++)
 	{
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, translation);
-		trans = glm::rotate(trans, rotationRadians, rotationAxis);
-		trans = glm::scale(trans, scale);
-
-		glm::mat4 objectModelMatrix = matrices[i] * trans;
+		glm::mat4 objectModelMatrix = transformation * matrices[i];
 		// Set the normal matrix in the shader to calculate the proper normal direction
 		shader.SetMat3("normalMatrix", glm::mat3(glm::transpose(glm::inverse(objectModelMatrix))));
 
@@ -22,10 +17,12 @@ void Model::Draw(Shader& shader, Camera& camera)
 	}
 }
 
-void Model::LoadModel(std::string path)
+void Model::LoadModel(std::string path, bool flipTexture)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = flipTexture ?
+		importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenBoundingBoxes) :
+		importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenBoundingBoxes);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -36,6 +33,14 @@ void Model::LoadModel(std::string path)
 	if (scene)
 		ProcessNode(scene->mRootNode, scene, glm::mat4(1.0f));
 	
+	// Normalize the model size within size 1 cube and move model to the center (0.0, 0.0, 0.0)
+	glm::vec3 origin2ModelCenter = (aabbMax + aabbMin) * 0.5f;
+	glm::vec3 modelSize = aabbMax - aabbMin;
+	glm::vec3 scale2NormalSize = glm::vec3(1.0f) / glm::max(glm::max(modelSize.x, modelSize.y), modelSize.z);
+	transformation = glm::scale(transformation, scale2NormalSize);
+	transformation = glm::translate(transformation, -origin2ModelCenter);
+	
+	std::cout << "Scene Name: " << scene->mName.C_Str() << std::endl;
 	std::cout << "Number of mesh: " << meshes.size() << std::endl;
 	std::cout << "Number of loaded textures: " << texturesLoaded.size() << std::endl;
 }
@@ -59,6 +64,24 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 matrix)
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		meshes.push_back(ProcessMesh(mesh, scene));
 		matrices.push_back(matNode);
+
+		// Update the bounding box
+		glm::vec3 max = glm::vec3(matNode * glm::vec4(getGlmVec3FromAiVec3(mesh->mAABB.mMax), 1.0f));
+		glm::vec3 min = glm::vec3(matNode * glm::vec4(getGlmVec3FromAiVec3(mesh->mAABB.mMin), 1.0f));
+
+		if (aabbMax.x < max.x)
+			aabbMax.x = max.x;
+		if (aabbMax.y < max.y)
+			aabbMax.y = max.y;
+		if (aabbMax.z < max.z)
+			aabbMax.z = max.z;
+
+		if (aabbMin.x > min.x)
+			aabbMin.x = min.x;
+		if (aabbMin.y > min.y)
+			aabbMin.y = min.y;
+		if (aabbMin.z > min.z)
+			aabbMin.z = min.z;
 	}
 	// Then do the same for each of its childern
 	for (size_t i = 0; i < node->mNumChildren; i++)
@@ -73,7 +96,6 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
 
-	std::cout << mesh->mName.C_Str() << std::endl;
 
 	for (size_t i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -102,25 +124,39 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, textureType::DIFFUSE);
+		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, textureType::DIFFUSE, scene);
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, textureType::SPECULAR);
+		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, textureType::SPECULAR, scene);
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
 	return Mesh(vertices, indices, textures);
 }
 
-std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* material, aiTextureType aiTexType, textureType texType)
+std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* material, aiTextureType aiTexType, textureType texType, const aiScene* scene)
 {
 	std::vector<Texture> textures;
 
 	for (unsigned int i = 0; i < material->GetTextureCount(aiTexType); i++)
 	{
-		aiString str;
-		material->GetTexture(aiTexType, i, &str);
-		std::string filePath = str.C_Str();
-		filePath = directory + '/' + filePath;
+		aiString path;
+		material->GetTexture(aiTexType, i, &path);
+		std::string filePath;
+
+		aiTexture* tex;
+		if (path.C_Str()[0] == '*')
+		{
+			tex = scene->mTextures[path.C_Str()[1] - '0'];
+			filePath = directory + "/" + tex->mFilename.C_Str();
+			if (tex->CheckFormat("jpg"))
+				filePath += ".jpg";
+			else
+				filePath += ".png";
+		}
+		else
+		{
+			filePath = directory + "/" + path.data;
+		}
 
 		bool skip = false;
 		for (unsigned int j = 0; j < texturesLoaded.size(); j++)
@@ -141,4 +177,9 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* material, aiTexture
 		}
 	}
 	return textures;
+}
+
+glm::vec3 getGlmVec3FromAiVec3(aiVector3D& vec)
+{
+	return glm::vec3(vec.x, vec.y, vec.z);
 }
