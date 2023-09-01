@@ -78,7 +78,7 @@ void main()
 	vec3 viewDir = normalize(cameraPosition - FragPosition);
 
 	if (objectDiffuse == vec3(0.0f))
-		objectDiffuse = vec3(1.0f);
+		objectDiffuse = vec3(0.7f);
 
 	vec3 result;
 

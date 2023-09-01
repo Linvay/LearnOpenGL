@@ -202,6 +202,8 @@ int main()
 	{
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+
+		io.FontGlobalScale = 1.25f;
 	}
 
 	// Setup Platform/Renderer backends
@@ -222,6 +224,7 @@ int main()
 	bool flipTexture = true;
 	std::string currentModelPath = "Resources/deccer-cubes/SM_Deccer_Cubes_Textured.glb";
 	Model currentModel(currentModelPath.c_str(), flipTexture);
+	currentModel.Scale(glm::vec3(2.0f));
 
 
 
@@ -240,9 +243,11 @@ int main()
 
 	// Setting up depth shader for depth visualization
 	Shader depthShader("default.vert", "depth.frag");
-	depthShader.Activate();
-	//depthShader.SetFloat("near", cameraNearPlane);
-	//depthShader.SetFloat("far", cameraFarPlane);
+
+	// Setting up stencil outline shader
+	Shader stencilOutlineShader("stencilOutline.vert", "stencilOutline.frag");
+	stencilOutlineShader.Activate();
+	stencilOutlineShader.SetFloat("outlining", 0.08f);
 
 
 
@@ -253,9 +258,6 @@ int main()
 
 	glm::vec3 lightPosition(0.5f, 0.5f, 0.5f);
 	DirLight dirLight(shaderProgram, 0.6f, 1.0f, 0.8f, glm::vec3(0.0f, 0.0f, 1.0f));
-	// PointLight pointLight(shaderProgram, 0.2f, 0.8f, 0.5f, lightPosition);
-	// SpotLight spotlight1(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[0], glm::vec3(0.0f, -1.0f, 0.0f));
-	// SpotLight spotlight2(shaderProgram, 0.0f, 1.0f, 1.0f, lightPositions[1], glm::vec3(0.0f, -1.0f, 0.0f));
 
 
 
@@ -270,11 +272,20 @@ int main()
 	// Enable the depth buffer
 	glEnable(GL_DEPTH_TEST);
 
+	// Enable stencil buffer
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	// Enable face culling
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
 
 	// GUI variables
-	Shader& currentShader = shaderProgram;
+	Shader* currentShader = &shaderProgram;
 	glm::vec4 clearColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	bool showDemoWindow;
+	bool showDemoWindow = false;
 	bool lighting = true;
 
 	// Render loop
@@ -283,83 +294,75 @@ int main()
 		// Clear viewport to a color
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		// Clear buffers to update the frame
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-
-
-		// Handel camera input
-		if (!io.WantCaptureMouse && !io.WantCaptureKeyboard)
-			camera.ProcessInputs(window);
-		// Setting up matrices for 3D perspective
-		camera.UpdateMatrix(cameraFOV, 0.1f, 1000.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
 
 		// **********************************************************
 		// * IMGUI SECTION											*
 		// **********************************************************
+		
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		
+		ImGui::Begin("Options", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+
+		if (ImGui::BeginMenuBar())
 		{
-			ImGui::Begin("Options", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
-
-			if (ImGui::BeginMenuBar())
+			if (ImGui::BeginMenu("Shader"))
 			{
-				if (ImGui::BeginMenu("Shader"))
+				if (ImGui::MenuItem("Default"))
 				{
-					if (ImGui::MenuItem("Default"))
-					{
-						currentShader = shaderProgram;
-					}
-					if (ImGui::MenuItem("Depth"))
-					{
-						currentShader = depthShader;
-					}
-					ImGui::EndMenu();
+					currentShader = &shaderProgram;
 				}
-				ImGui::EndMenuBar();
+				if (ImGui::MenuItem("Depth"))
+				{
+					currentShader = &depthShader;
+				}
+				ImGui::EndMenu();
 			}
 
-
-			ImGui::SeparatorText("Model");
-
-			if (ImGui::Button("Flip Texture"))
+			if (ImGui::BeginMenu("Other"))
 			{
-				flipTexture = !flipTexture;
-				currentModel = Model(currentModelPath.c_str(), flipTexture);
+				ImGui::Checkbox("Demo Menu", &showDemoWindow);
+				ImGui::EndMenu();
 			}
 
-
-
-			ImGui::SeparatorText("Environment");
-
-			ImGui::ColorEdit3("Background color", glm::value_ptr(clearColor));
-
-			if (ImGui::Checkbox("Lighting", &lighting))
-			{
-				shaderProgram.SetBool("lighting", lighting);
-			}
-
-			ImGui::SeparatorText("Performance");
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-
-			ImGui::End();
+			ImGui::EndMenuBar();
 		}
 
-		ImGui::ShowDemoWindow(&showDemoWindow);
+		ImGui::SeparatorText("Model");
+		if (ImGui::Button("Flip Texture"))
+		{
+			flipTexture = !flipTexture;
+			currentModel = Model(currentModelPath.c_str(), flipTexture);
+		}
+
+		ImGui::SeparatorText("Environment");
+		ImGui::ColorEdit3("Background color", glm::value_ptr(clearColor));
+		if (ImGui::Checkbox("Lighting", &lighting))
+		{
+			shaderProgram.Activate();
+			shaderProgram.SetBool("lighting", lighting);
+		}
+
+		ImGui::SeparatorText("Performance");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+		ImGui::End();
+
+		if (showDemoWindow)
+			ImGui::ShowDemoWindow(&showDemoWindow);
 		showMainMenuBar(currentModel, currentModelPath);
 		
+
 
 		// **********************************************************
 		// * SCENE DRAWING SECTION									*
 		// **********************************************************
-		currentModel.Draw(currentShader, camera);
+		currentModel.Draw(*currentShader, camera);
 
 
 
@@ -368,8 +371,6 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Update and Render additional Platform Windows
-		// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-		//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			GLFWwindow* backup_current_context = glfwGetCurrentContext();
@@ -378,7 +379,11 @@ int main()
 			glfwMakeContextCurrent(backup_current_context);
 		}
 
-
+		// Handel camera input
+		if (!io.WantCaptureMouse && !io.WantCaptureKeyboard)
+			camera.ProcessInputs(window);
+		// Setting up matrices for 3D perspective
+		camera.UpdateMatrix(cameraFOV, 0.1f, 100.0f);
 
 		// Check and call events and swap the frame buffers
 		glfwSwapBuffers(window);
@@ -406,7 +411,6 @@ int main()
 // Resize viewport whenever the size of the window is changed
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	std::cout << width << "x" << height << std::endl;
 	glViewport(0, 0, width, height);
 	camera.UpdateAspectRatio(width, height);
 }

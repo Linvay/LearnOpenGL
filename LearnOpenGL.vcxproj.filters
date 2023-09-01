@@ -108,6 +108,12 @@
     <None Include="depth.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="stencilOutline.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="stencilOutline.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

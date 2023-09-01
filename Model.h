@@ -10,18 +10,18 @@ class Model
 {
 public:
 	Model(const char* path, bool flipTexture = true);
-	void Draw(Shader& shader, Camera& camera);
+	void Draw(Shader& shader, Camera& camera, float scale = 1.0f);
 	void Translate(const glm::vec3& trans)
 	{
-		glm::translate(transformation, trans);
+		transformation = glm::translate(transformation, trans);
 	}
 	void Rotate(float angle, const glm::vec3& axis)
 	{
-		glm::rotate(transformation, glm::radians(angle), axis);
+		transformation = glm::rotate(transformation, glm::radians(angle), axis);
 	}
 	void Scale(const glm::vec3& scale)
 	{
-		glm::scale(transformation, scale);
+		transformation = glm::scale(transformation, scale);
 	}
 
 private:

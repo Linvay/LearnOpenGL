@@ -6,7 +6,7 @@ Texture::Texture(const char* imagePath, textureType type, GLuint slot)
 	path = imagePath;
 
 	int widthImage, heightImage, numColorChannel;
-	stbi_set_flip_vertically_on_load(true);
+	// stbi_set_flip_vertically_on_load(true);
 
 	glGenTextures(1, &ID);
 	glActiveTexture(GL_TEXTURE0 + slot);

@@ -5,11 +5,13 @@ Model::Model(const char* path, bool flipTexture)
 	LoadModel(path, flipTexture);
 }
 
-void Model::Draw(Shader& shader, Camera& camera)
+void Model::Draw(Shader& shader, Camera& camera, float scale)
 {
 	for (size_t i = 0; i < meshes.size(); i++)
 	{
 		glm::mat4 objectModelMatrix = transformation * matrices[i];
+		objectModelMatrix = glm::scale(objectModelMatrix, glm::vec3(scale));
+
 		// Set the normal matrix in the shader to calculate the proper normal direction
 		shader.SetMat3("normalMatrix", glm::mat3(glm::transpose(glm::inverse(objectModelMatrix))));
 
@@ -21,8 +23,8 @@ void Model::LoadModel(std::string path, bool flipTexture)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = flipTexture ?
-		importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenBoundingBoxes) :
-		importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenBoundingBoxes);
+		importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_GenBoundingBoxes) :
+		importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -31,18 +33,20 @@ void Model::LoadModel(std::string path, bool flipTexture)
 	directory = path.substr(0, path.find_last_of('/'));
 
 	if (scene)
+	{
 		ProcessNode(scene->mRootNode, scene, glm::mat4(1.0f));
-	
-	// Normalize the model size within size 1 cube and move model to the center (0.0, 0.0, 0.0)
-	glm::vec3 origin2ModelCenter = (aabbMax + aabbMin) * 0.5f;
-	glm::vec3 modelSize = aabbMax - aabbMin;
-	glm::vec3 scale2NormalSize = glm::vec3(1.0f) / glm::max(glm::max(modelSize.x, modelSize.y), modelSize.z);
-	transformation = glm::scale(transformation, scale2NormalSize);
-	transformation = glm::translate(transformation, -origin2ModelCenter);
-	
-	std::cout << "Scene Name: " << scene->mName.C_Str() << std::endl;
-	std::cout << "Number of mesh: " << meshes.size() << std::endl;
-	std::cout << "Number of loaded textures: " << texturesLoaded.size() << std::endl;
+
+		// Normalize the model size within size 1 cube and move model to the center (0.0, 0.0, 0.0)
+		glm::vec3 origin2ModelCenter = (aabbMax + aabbMin) * 0.5f;
+		glm::vec3 modelSize = aabbMax - aabbMin;
+		glm::vec3 scale2NormalSize = glm::vec3(1.0f) / glm::max(glm::max(modelSize.x, modelSize.y), modelSize.z);
+		transformation = glm::scale(transformation, scale2NormalSize);
+		transformation = glm::translate(transformation, -origin2ModelCenter);
+
+		std::cout << "Scene Name:\t" << scene->mName.C_Str() << std::endl;
+		std::cout << "Number of Meshes:\t" << meshes.size() << std::endl;
+		std::cout << "Number of Textures:\t" << texturesLoaded.size() << std::endl;
+	}
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 matrix)
